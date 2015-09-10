@@ -7,7 +7,6 @@ import logging as logging
 from rmgpy.data.rmg import getDB
 import rmgpy.constants as constants
 from rmgpy.molecule import Molecule
-from rmgpy.species import Species
 from rmgpy.statmech import Conformer
 from rmgpy.thermo import Wilhoit, NASA, ThermoData
 import rmgpy.data.rmg
@@ -18,6 +17,9 @@ def processThermoData(spc, thermo0, thermoClass=NASA):
     
     Resulting thermo is returned.
     """
+    # TODO moving this as a global import leads to circular imports.
+    from rmgpy.rmg.model import Species
+
     thermo = None
     solvationdatabase = getDB('solvation')
 
