@@ -3,7 +3,8 @@ import numpy
 import math
 
 import logging as logging
-    
+
+from rmgpy.data.rmg import getDB
 import rmgpy.constants as constants
 from rmgpy.molecule import Molecule
 from rmgpy.species import Species
@@ -18,8 +19,7 @@ def processThermoData(spc, thermo0, thermoClass=NASA):
     Resulting thermo is returned.
     """
     thermo = None
-    database = rmgpy.data.rmg.database
-    solvationdatabase = database.solvation
+    solvationdatabase = getDB('solvation')
 
     # Always convert to Wilhoit so we can compute E0
     if isinstance(thermo0, Wilhoit):
@@ -41,8 +41,8 @@ def processThermoData(spc, thermo0, thermoClass=NASA):
     # Add on solvation correction
     if Species.solventData and not "Liquid thermo library" in thermo0.comment:
         #logging.info("Making solvent correction for {0}".format(Species.solventName))
-        soluteData = database.solvation.getSoluteData(spc)
-        solvation_correction = database.solvation.getSolvationCorrection(soluteData, Species.solventData)
+        soluteData = solvationdatabase.getSoluteData(spc)
+        solvation_correction = solvationdatabase.getSolvationCorrection(soluteData, Species.solventData)
         # correction is added to the entropy and enthalpy
         wilhoit.S0.value_si = (wilhoit.S0.value_si + solvation_correction.entropy)
         wilhoit.H0.value_si = (wilhoit.H0.value_si + solvation_correction.enthalpy)
@@ -104,8 +104,8 @@ def generateThermoData(spc, thermoClass=NASA, quantumMechanics=None):
     """
     
 
-    database = rmgpy.data.rmg.database
-    thermo0 = database.thermo.getThermoData(spc, trainingSet=None, quantumMechanics=quantumMechanics) 
+    thermodb = getDB('thermo')
+    thermo0 = thermodb.getThermoData(spc, trainingSet=None, quantumMechanics=quantumMechanics) 
         
     return processThermoData(spc, thermo0, thermoClass)
 
@@ -134,7 +134,6 @@ def generateTransportData(species):
     """
     Generate the transportData parameters for the species.
     """
-    database = rmgpy.data.rmg.database
-    transport_db = database.transport
+    transport_db = getDB('transport')
 
     return transport_db.getTransportProperties(species)[0]
