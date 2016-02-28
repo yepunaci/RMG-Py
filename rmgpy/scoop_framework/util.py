@@ -39,7 +39,7 @@ from functools import wraps
 
 try:
     from scoop import futures
-    from scoop.futures import map
+    from scoop.futures import map, submit
     from scoop import shared
     from scoop import logger as logging
 
@@ -148,3 +148,20 @@ def get(key):
 
 def map_(*args, **kwargs):
     return map(*args, **kwargs)
+
+def submit_(func, *args, **kwargs):
+    """
+    Task submission of a function.
+
+    returns the return value of the called function, or
+    when SCOOP is loaded, the future object.
+    """
+    try:
+        task = submit(WorkerWrapper(func), *args, **kwargs)#returns immediately
+        return task
+    except Exception, e:
+        """
+        Name error will be caught when the SCOOP library is not imported properly.
+        """
+        logging.debug('SCOOP not loaded. Submitting serial mode.')
+        return func(*args, **kwargs)
