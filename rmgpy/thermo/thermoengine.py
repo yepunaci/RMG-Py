@@ -89,7 +89,7 @@ def processThermoData(spc, thermo0, thermoClass=NASA):
     return thermo
     
 
-def generateThermoData(spc, thermoClass=NASA, quantumMechanics=None):
+def generateThermoData(spc, thermoClass=NASA):
     """
     Generates thermo data, first checking Libraries, then using either QM or Database.
     
@@ -107,7 +107,7 @@ def generateThermoData(spc, thermoClass=NASA, quantumMechanics=None):
     
 
     thermodb = getDB('thermo')
-    thermo0 = thermodb.getThermoData(spc, trainingSet=None, quantumMechanics=quantumMechanics) 
+    thermo0 = thermodb.getThermoData(spc, trainingSet=None) 
         
     return processThermoData(spc, thermo0, thermoClass)
 

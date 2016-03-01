@@ -401,6 +401,10 @@ def readInputFile(path, rmg0):
     for reactionSystem in rmg.reactionSystems:
         reactionSystem.convertInitialKeysToSpeciesObjects(speciesDict)
 
+    if rmg.quantumMechanics:
+        rmg.quantumMechanics.initialize()
+    broadcast(rmg.quantumMechanics, 'quantumMechanics')
+
     logging.info('')
     
 ################################################################################
@@ -453,6 +457,11 @@ def readThermoInputFile(path, rmg0):
     finally:
         f.close()
 
+    if rmg.quantumMechanics:
+        rmg.quantumMechanics.setDefaultOutputDirectory(rmg.outputDirectory)
+        rmg.quantumMechanics.initialize()
+    broadcast(rmg.quantumMechanics, 'quantumMechanics')
+    
     logging.info('')    
 
 ################################################################################
@@ -627,6 +636,8 @@ def getInput(name):
     if rmg:
         if name == 'speciesConstraints':
             return rmg.speciesConstraints
+        elif name == 'quantumMechanics':
+            return rmg.quantumMechanics
         else:
             raise Exception('Unrecognized keyword: {}'.format(name))
     else:
