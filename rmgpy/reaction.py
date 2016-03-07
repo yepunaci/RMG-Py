@@ -513,9 +513,9 @@ class Reaction:
         cython.declare(dHrxn=cython.double, reactant=Species, product=Species)
         dHrxn = 0.0
         for reactant in self.reactants:
-            dHrxn -= reactant.getEnthalpy(T)
+            dHrxn -= reactant.getThermo().getEnthalpy(T)
         for product in self.products:
-            dHrxn += product.getEnthalpy(T)
+            dHrxn += product.getThermo().getEnthalpy(T)
         return dHrxn
 
     def getEntropyOfReaction(self, T):
@@ -526,9 +526,9 @@ class Reaction:
         cython.declare(dSrxn=cython.double, reactant=Species, product=Species)
         dSrxn = 0.0
         for reactant in self.reactants:
-            dSrxn -= reactant.getEntropy(T)
+            dSrxn -= reactant.getThermo().getEntropy(T)
         for product in self.products:
-            dSrxn += product.getEntropy(T)
+            dSrxn += product.getThermo().getEntropy(T)
         return dSrxn
 
     def getFreeEnergyOfReaction(self, T):
@@ -539,9 +539,9 @@ class Reaction:
         cython.declare(dGrxn=cython.double, reactant=Species, product=Species)
         dGrxn = 0.0
         for reactant in self.reactants:
-            dGrxn -= reactant.getFreeEnergy(T)
+            dGrxn -= reactant.getThermo().getFreeEnergy(T)
         for product in self.products:
-            dGrxn += product.getFreeEnergy(T)
+            dGrxn += product.getThermo().getFreeEnergy(T)
         return dGrxn
 
     def getEquilibriumConstant(self, T, type='Kc'):
@@ -657,8 +657,10 @@ class Reaction:
         are forced to have a non-negative barrier.
         """
         cython.declare(H0=cython.double, H298=cython.double, Ea=cython.double)
+
         H298 = self.getEnthalpyOfReaction(298)
-        H0 = sum([spec.thermo.E0.value_si for spec in self.products]) - sum([spec.thermo.E0.value_si for spec in self.reactants])
+        H0 = sum([spec.getThermo().E0.value_si for spec in self.products]) \
+            - sum([spec.getThermo().E0.value_si for spec in self.reactants])
         if isinstance(self.kinetics, ArrheniusEP):
             Ea = self.kinetics.E0.value_si # temporarily using Ea to store the intrinsic barrier height E0
             self.kinetics = self.kinetics.toArrhenius(H298)

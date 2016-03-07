@@ -85,13 +85,11 @@ class Species(rmgpy.species.Species):
         have already provided a thermodynamics model using e.g.
         :meth:`generateThermoData()`.
         """
-        if not self.hasThermo():
-            raise Exception("Unable to determine statmech model for species {0}: No thermodynamics model found.".format(self))
         molecule = self.molecule[0]
-        conformer = database.statmech.getStatmechData(molecule, self.thermo)
+        conformer = database.statmech.getStatmechData(molecule, self.getThermo())
         if self.conformer is None:
             self.conformer = Conformer()
-        self.conformer.E0 = self.thermo.E0
+        self.conformer.E0 = self.getThermo().E0
         self.conformer.modes = conformer.modes
         self.conformer.spinMultiplicity = conformer.spinMultiplicity
             
@@ -105,8 +103,7 @@ class Species(rmgpy.species.Species):
             alpha0 = (300*0.011962,"kJ/mol"),
             T0 = (300,"K"),
             n = 0.85,
-        )
-
+        ) 
 ################################################################################
 
 class ReactionModel:

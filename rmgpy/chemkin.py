@@ -1044,7 +1044,7 @@ def readThermoBlock(f, speciesDict):
                 thermoBlock = ''
                 line = f.readline()
                 continue
-            elif speciesDict[label].thermo:
+            elif speciesDict[label].hasThermo():
                 logging.warning('Skipping duplicate thermo for the species {0}'.format(label))
                 thermoBlock = ''
                 line = f.readline()
@@ -1325,7 +1325,8 @@ def writeThermoEntry(species, verbose = True):
     model, and you must use the seven-coefficient forms for each.
     """
 
-    thermo = species.thermo
+    thermo = species.getThermo()
+
     if not isinstance(thermo, NASA):
         return ''
         raise ChemkinError('Cannot generate Chemkin string for species "{0}": Thermodynamics data must be a NASA object.'.format(species))
@@ -1732,11 +1733,13 @@ def saveTransportFile(path, species):
     7. After the last number, a comment field can be enclosed in parenthesis.
 
     """
+
     with open(path, 'w') as f:
         f.write("! {0:15} {1:8} {2:9} {3:9} {4:9} {5:9} {6:9} {7:9}\n".format('Species','Shape', 'LJ-depth', 'LJ-diam', 'DiplMom', 'Polzblty', 'RotRelaxNum','Data'))
         f.write("! {0:15} {1:8} {2:9} {3:9} {4:9} {5:9} {6:9} {7:9}\n".format('Name','Index', 'epsilon/k_B', 'sigma', 'mu', 'alpha', 'Zrot','Source'))
-        for spec in species:            
-            if not spec.transportData:
+        for spec in species:
+            transportData = spec.getTransport()
+            if (not transportData):
                 missingData = True
             else:
                 missingData = False
@@ -1744,17 +1747,17 @@ def saveTransportFile(path, species):
             label = getSpeciesIdentifier(spec)
             
             if missingData:
-                f.write('! {0:19s} {1!r}\n'.format(label, spec.transportData))
+                f.write('! {0:19s} {1!r}\n'.format(label, spec.getTransport()))
             else:
                 f.write('{0:19} {1:d}   {2:9.3f} {3:9.3f} {4:9.3f} {5:9.3f} {6:9.3f}    ! {7:s}\n'.format(
                     label,
-                    spec.transportData.shapeIndex,
-                    spec.transportData.epsilon.value_si / constants.R,
-                    spec.transportData.sigma.value_si * 1e10,
-                    (spec.transportData.dipoleMoment.value_si * constants.c * 1e21 if spec.transportData.dipoleMoment else 0),
-                    (spec.transportData.polarizability.value_si * 1e30 if spec.transportData.polarizability else 0),
-                    (spec.transportData.rotrelaxcollnum if spec.transportData.rotrelaxcollnum else 0),
-                    spec.transportData.comment,
+                    spec.getTransport().shapeIndex,
+                    spec.getTransport().epsilon.value_si / constants.R,
+                    spec.getTransport().sigma.value_si * 1e10,
+                    (spec.getTransport().dipoleMoment.value_si * constants.c * 1e21 if spec.getTransport().dipoleMoment else 0),
+                    (spec.getTransport().polarizability.value_si * 1e30 if spec.getTransport().polarizability else 0),
+                    (spec.getTransport().rotrelaxcollnum if spec.getTransport().rotrelaxcollnum else 0),
+                    spec.getTransport().comment,
                 ))
 
 def saveChemkinFile(path, species, reactions, verbose = True, checkForDuplicates=True):

@@ -44,8 +44,8 @@ def runThermoEstimator(inputFile):
             index = len(library.entries) + 1,
             label = species.label,
             molecule = species.molecule[0].toAdjacencyList(),
-            thermo = species.thermo.toThermoData(),
-            shortDesc = species.thermo.comment,
+            thermo = species.getThermo().toThermoData(),
+            shortDesc = species.getThermo().comment,
         )
         output.write(writeThermoEntry(species))
         output.write('\n')

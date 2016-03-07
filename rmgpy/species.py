@@ -295,7 +295,7 @@ class Species(object):
         cython.declare(Cp=cython.double)
         Cp = 0.0
         if self.hasThermo():
-            Cp = self.thermo.getHeatCapacity(T)
+            Cp = self.getThermo().getHeatCapacity(T)
         elif self.hasStatMech():
             Cp = self.conformer.getHeatCapacity(T)
         else:
@@ -310,7 +310,7 @@ class Species(object):
         cython.declare(H=cython.double)
         H = 0.0
         if self.hasThermo():
-            H = self.thermo.getEnthalpy(T)
+            H = self.getThermo().getEnthalpy(T)
         elif self.hasStatMech():
             H = self.conformer.getEnthalpy(T) + self.conformer.E0.value_si
         else:
@@ -325,7 +325,7 @@ class Species(object):
         cython.declare(S=cython.double)
         S = 0.0
         if self.hasThermo():
-            S = self.thermo.getEntropy(T)
+            S = self.getThermo().getEntropy(T)
         elif self.hasStatMech():
             S = self.conformer.getEntropy(T)
         else:
@@ -340,7 +340,7 @@ class Species(object):
         cython.declare(G=cython.double)
         G = 0.0
         if self.hasThermo():
-            G = self.thermo.getFreeEnergy(T)
+            G = self.getThermo().getFreeEnergy(T)
         elif self.hasStatMech():
             G = self.conformer.getFreeEnergy(T) + self.conformer.E0.value_si
         else:
