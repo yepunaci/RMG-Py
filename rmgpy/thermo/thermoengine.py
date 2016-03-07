@@ -109,6 +109,27 @@ def generateThermoData(spc, thermoClass=NASA, quantumMechanics=None):
         
     return processThermoData(spc, thermo0, thermoClass)
 
+
+def evaluator(spc):
+    """
+    Module-level function passed to workers.
+
+    generates a thermodata object for the 
+    identifier and stores it in the 
+    thermo database.
+
+    Next, thermo is generated of this species.
+
+    """
+    logging.debug("Evaluating spc %s ", spc)
+
+    spc.generateResonanceIsomers()
+    thermo = generateThermoData(spc)
+    transportData = generateTransportData(spc)
+
+    return (thermo, transportData)
+
+
 def generateTransportData(species):
     """
     Generate the transportData parameters for the species.
