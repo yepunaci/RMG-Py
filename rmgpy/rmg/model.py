@@ -325,7 +325,8 @@ class CoreEdgeReactionModel:
         spec.coreSizeAtCreation = len(self.core.species)
         spec.generateResonanceIsomers()
         spec.molecularWeight = Quantity(spec.molecule[0].getMolecularWeight()*1000.,"amu")
-        # spec.generateTransportData(database)
+        
+        spec.submit()
         spec.generateEnergyTransferModel()
         formula = molecule.getFormula()
         if formula in self.speciesDict:
@@ -642,12 +643,6 @@ class CoreEdgeReactionModel:
 
         ################################################################
         # Begin processing the new species and reactions
-            
-        # Generate thermodynamics of new species
-        logging.info('Generating thermodynamics for new species...')
-        for spec in self.newSpeciesList:
-            spec.generateThermoData(database, quantumMechanics=self.quantumMechanics)
-            spec.generateTransportData(database)
         
         # Generate kinetics of new reactions
         logging.info('Generating kinetics for new reactions...')
@@ -1248,8 +1243,9 @@ class CoreEdgeReactionModel:
                     raise ForbiddenStructureException("Species constraints forbids species {0} from seed mechanism {1}. Please reformulate constraints, remove the species, or explicitly allow it.".format(spec.label, seedMechanism.label))
 
         for spec in self.newSpeciesList:            
-            if spec.reactive: spec.generateThermoData(database, quantumMechanics=self.quantumMechanics)
-            spec.generateTransportData(database)
+            if spec.reactive:
+                spec.submit()
+
             self.addSpeciesToCore(spec)
 
         for rxn in self.newReactionList:
@@ -1258,8 +1254,7 @@ class CoreEdgeReactionModel:
                 # we need to make sure the barrier is positive.
                 # ...but are Seed Mechanisms run through PDep? Perhaps not.
                 for spec in itertools.chain(rxn.reactants, rxn.products):
-                    if spec.thermo is None:
-                        spec.generateThermoData(database, quantumMechanics=self.quantumMechanics)
+                    spec.submit()
                 rxn.fixBarrierHeight(forcePositive=True)
             self.addReactionToCore(rxn)
         
@@ -1314,10 +1309,10 @@ class CoreEdgeReactionModel:
                     rmg.speciesConstraints['explicitlyAllowedMolecules'].extend(spec.molecule)
                 else:
                     raise ForbiddenStructureException("Species constraints forbids species {0} from reaction library {1}. Please reformulate constraints, remove the species, or explicitly allow it.".format(spec.label, reactionLibrary.label))
-       
+
         for spec in self.newSpeciesList:
-            if spec.reactive: spec.generateThermoData(database, quantumMechanics=self.quantumMechanics)
-            spec.generateTransportData(database)
+            if spec.reactive: 
+                spec.submit()
             self.addSpeciesToEdge(spec)
 
         for rxn in self.newReactionList:

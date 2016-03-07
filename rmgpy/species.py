@@ -563,8 +563,8 @@ class TransitionState():
         """
         cython.declare(Cp=cython.double)
         Cp = 0.0
-        if self.thermo is not None:
-            Cp = self.thermo.getHeatCapacity(T)
+        if self.getThermo() is not None:
+            Cp = self.getThermo().getHeatCapacity(T)
         elif self.conformer is not None and len(self.conformer.modes) > 0:
             Cp = self.conformer.getHeatCapacity(T)
         else:
@@ -578,8 +578,8 @@ class TransitionState():
         """
         cython.declare(H=cython.double)
         H = 0.0
-        if self.thermo is not None:
-            H = self.thermo.getEnthalpy(T)
+        if self.getThermo() is not None:
+            H = self.getThermo().getEnthalpy(T)
         elif self.conformer is not None and len(self.conformer.modes) > 0:
             H = self.conformer.getEnthalpy(T)
         else:
@@ -593,8 +593,8 @@ class TransitionState():
         """
         cython.declare(S=cython.double)
         S = 0.0
-        if self.thermo is not None:
-            S = self.thermo.getEntropy(T)
+        if self.getThermo() is not None:
+            S = self.getThermo().getEntropy(T)
         elif self.conformer is not None and len(self.conformer.modes) > 0:
             S = self.conformer.getEntropy(T)
         else:
@@ -608,8 +608,8 @@ class TransitionState():
         """
         cython.declare(G=cython.double)
         G = 0.0
-        if self.thermo is not None:
-            G = self.thermo.getFreeEnergy(T)
+        if self.getThermo() is not None:
+            G = self.getThermo().getFreeEnergy(T)
         elif self.conformer is not None and len(self.conformer.modes) > 0:
             G = self.conformer.getFreeEnergy(T)
         else:
