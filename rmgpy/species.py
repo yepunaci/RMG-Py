@@ -48,6 +48,8 @@ import cython
 import rmgpy.quantity as quantity
 from rmgpy.molecule import Molecule
 
+from rmgpy.scoop_framework.util import submit_
+
 #: This dictionary is used to add multiplicity to species label
 _multiplicity_labels = {1:'S',2:'D',3:'T',4:'Q',5:'V',}
                            
@@ -82,6 +84,7 @@ class Species(object):
     `reactive`              ``True`` if the species participates in reactions, ``False`` if not
     `props`                 A generic 'properties' dictionary to store user-defined flags
     `aug_inchi`             Unique augmented inchi
+    `data`                  An object holding both thermo and transport data
     ======================= ====================================================
 
     note: :class:`rmg.model.Species` inherits from this class, and adds some extra methods.
@@ -101,6 +104,7 @@ class Species(object):
         self.energyTransferModel = energyTransferModel        
         self.props = props or {}
         self.aug_inchi = aug_inchi
+        self.data = None
         
         # Check multiplicity of each molecule is the same
         if molecule is not None and len(molecule)>1:
@@ -435,7 +439,59 @@ class Species(object):
             candidates.append(cand)
 
         candidates.sort()
-        return candidates[0]        
+        return candidates[0]  
+
+    def getThermo(self):
+        if self.thermo: return self.thermo
+        else:
+            data = self.getData()
+            self.thermo = data[0]
+            return self.thermo
+
+    def getTransport(self):
+        if self.transportData: return self.transportData
+        else:
+            data = self.getData()
+            self.transportData = data[1]
+            return self.transportData
+
+    def getData(self):
+        """
+        Retrieves the data attribute.
+        if it is not available yet, a request is submitted.
+        """
+        if not self.data:
+            self.submit() 
+        
+        return self.get()
+
+    def get(self):
+        """
+        Retrieves the data attribute,
+        either by returning the tuple, or by retrieving the result
+        of the Future object.
+        """
+        if not isinstance(self.data, tuple):
+            self.data = self.data.result()
+
+        return self.data
+
+    def submit(self):
+        """
+        Submits a request to calculate thermo/transport.
+
+        In a serial run, the data attribute will store 
+        a tuple of thermo/transport.
+
+        In a parallel run, the data attribute will
+        store the future object, until the get method
+        is called, which replaces the future object with 
+        the result.
+
+        """
+        if not self.data:
+            from rmgpy.thermo.thermoengine import evaluator
+            self.data = submit_(evaluator, self)
 
 ################################################################################
 
