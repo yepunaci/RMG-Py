@@ -1515,7 +1515,27 @@ multiplicity 2
         monorings, polyrings = m5.getDisparateRings()
         self.assertEqual(len(monorings),3)
         self.assertEqual(len(polyrings),0)
+    
+    def testToGroup(self):
+        """
+        Test if we can convert a Molecule object into a Group object.
+        """
+        mol = Molecule().fromSMILES('CC(C)CCCC(C)C1CCC2C3CC=C4CC(O)CCC4(C)C3CCC12C')#cholesterol
+        group = mol.toGroup()
         
+        self.assertTrue(isinstance(group, Group))
+        
+        self.assertEquals(len(mol.atoms), len(group.atoms))
+
+        molbondcount = sum([1 for atom in mol.atoms for bondedAtom, bond in atom.edges.iteritems()])
+        groupbondcount = sum([1 for atom in group.atoms for bondedAtom, bond in atom.edges.iteritems()])
+        self.assertEquals(molbondcount, groupbondcount)
+
+        for i, molAt in enumerate(mol.atoms):
+            groupAtom = group.atoms[i]
+            atomTypes = [groupAtomType.equivalent(molAt.atomType) for groupAtomType in groupAtom.atomType]
+            self.assertTrue(any(atomTypes))
+
 ################################################################################
 
 if __name__ == '__main__':
