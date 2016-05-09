@@ -17,7 +17,7 @@ species(
 
 # Reaction systems
 simpleReactor(
-    temperature=(1350,'K'),
+    temperature=(1250,'K'),
     pressure=(1.0,'bar'),
     initialMoleFractions={
         "ethane": 1.0,
